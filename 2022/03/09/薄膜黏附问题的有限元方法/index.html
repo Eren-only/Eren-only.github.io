@@ -1,0 +1,322 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>薄膜黏附问题的有限元方法 | Eren的博客</title><meta name="keywords" content="博客, Eren"><meta name="author" content="Eren"><meta name="copyright" content="Eren"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="薄膜黏附问题的有限元方法     上学期博主上了一门弹性力学变分课，变分的思想是泛函求极值，泛函是函数的函数。在运用中，可以把能量看作是一种泛函，能量（势能加外力功）是应力应变的函数，而应力应变又是位移和位移导数的函数，通过对能量求极值，得到数值解。而有限元方法正是通过这样的思想，求解模型。这次，博主使用有限元方法对薄膜的粘附问题进行求解，编程软件为matlab。 1. 背景和主要内容在许多领域">
+<meta property="og:type" content="article">
+<meta property="og:title" content="薄膜黏附问题的有限元方法">
+<meta property="og:url" content="https://eren-only.github.io/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="Eren的博客">
+<meta property="og:description" content="薄膜黏附问题的有限元方法     上学期博主上了一门弹性力学变分课，变分的思想是泛函求极值，泛函是函数的函数。在运用中，可以把能量看作是一种泛函，能量（势能加外力功）是应力应变的函数，而应力应变又是位移和位移导数的函数，通过对能量求极值，得到数值解。而有限元方法正是通过这样的思想，求解模型。这次，博主使用有限元方法对薄膜的粘附问题进行求解，编程软件为matlab。 1. 背景和主要内容在许多领域">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://cn.bing.com/images/search?view=detailV2&ccid=UmxpsJ%2bs&id=641054463C62FA3EF12D02796AE0E562B8ACF807&thid=OIP.UmxpsJ-sshjWrTYpYsLh1QHaGM&mediaurl=https%3a%2f%2finews.gtimg.com%2fnewsapp_bt%2f0%2f13411727813%2f1000&exph=796&expw=951&q=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&simid=608028504488936380&FORM=IRPRST&ck=476B865DF83FBCB91A9776DCB632F085&selectedIndex=30&qpvt=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&ajaxhist=0&ajaxserp=0">
+<meta property="article:published_time" content="2022-03-08T16:00:00.000Z">
+<meta property="article:modified_time" content="2022-03-10T06:05:27.958Z">
+<meta property="article:author" content="Eren">
+<meta property="article:tag" content="博客, Eren">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://cn.bing.com/images/search?view=detailV2&ccid=UmxpsJ%2bs&id=641054463C62FA3EF12D02796AE0E562B8ACF807&thid=OIP.UmxpsJ-sshjWrTYpYsLh1QHaGM&mediaurl=https%3a%2f%2finews.gtimg.com%2fnewsapp_bt%2f0%2f13411727813%2f1000&exph=796&expw=951&q=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&simid=608028504488936380&FORM=IRPRST&ck=476B865DF83FBCB91A9776DCB632F085&selectedIndex=30&qpvt=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&ajaxhist=0&ajaxserp=0"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://eren-only.github.io/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":50},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '薄膜黏附问题的有限元方法',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: true,
+  isToc: true,
+  postUpdate: '2022-03-10 14:05:27'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 6.0.0"></head><body><div id="loading-box"><div class="loading-left-bg"></div><div class="loading-right-bg"></div><div class="spinner-box"><div class="configure-border-1"><div class="configure-core"></div></div><div class="configure-border-2"><div class="configure-core"></div></div><div class="loading-word">加载中...</div></div></div><div id="web_bg"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="/img/yao.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data is-center"><div class="data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a></div><div class="data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a></div><div class="data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://cn.bing.com/images/search?view=detailV2&amp;ccid=UmxpsJ%2bs&amp;id=641054463C62FA3EF12D02796AE0E562B8ACF807&amp;thid=OIP.UmxpsJ-sshjWrTYpYsLh1QHaGM&amp;mediaurl=https%3a%2f%2finews.gtimg.com%2fnewsapp_bt%2f0%2f13411727813%2f1000&amp;exph=796&amp;expw=951&amp;q=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;simid=608028504488936380&amp;FORM=IRPRST&amp;ck=476B865DF83FBCB91A9776DCB632F085&amp;selectedIndex=30&amp;qpvt=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;ajaxhist=0&amp;ajaxserp=0')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">Eren的博客</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 时间轴</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page group" href="javascript:void(0);"><i class="fa-fw fas fa-list"></i><span> List</span><i class="fas fa-chevron-down"></i></a><ul class="menus_item_child"><li><a class="site-page child" href="/music/"><i class="fa-fw fas fa-music"></i><span> Music</span></a></li><li><a class="site-page child" href="/movies/"><i class="fa-fw fas fa-video"></i><span> Movie</span></a></li></ul></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 链接</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> About</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">薄膜黏附问题的有限元方法</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-03-08T16:00:00.000Z" title="发表于 2022-03-09 00:00:00">2022-03-09</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-03-10T06:05:27.958Z" title="更新于 2022-03-10 14:05:27">2022-03-10</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="薄膜黏附问题的有限元方法"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h1 align="center"> 薄膜黏附问题的有限元方法
+
+
+
+
+<p>上学期博主上了一门弹性力学变分课，变分的思想是泛函求极值，泛函是函数的函数。在运用中，可以把能量看作是一种泛函，能量（势能加外力功）是应力应变的函数，而应力应变又是位移和位移导数的函数，通过对能量求极值，得到数值解。而有限元方法正是通过这样的思想，求解模型。这次，博主使用有限元方法对薄膜的粘附问题进行求解，编程软件为matlab。</p>
+<h4 id="1-背景和主要内容"><a href="#1-背景和主要内容" class="headerlink" title="1. 背景和主要内容"></a><strong>1.</strong> <strong>背景和主要内容</strong></h4><p>在许多领域中，粘附和摩擦是一个非常普遍的现象，从微观到宏观，从生物到机器。因此粘附和摩擦具有很高的研究价值。近年来， 随着微纳米材料的发展与纳米尺度力学现象的深入研究，小尺度下的粘附和摩擦开始进入人们的视野。在众多的微纳米材料中，石墨烯材料是碳原子以六边形蜂巢晶格结构排列形成的平面薄膜，如图1所示，它的断裂强度比最好的钢材还要高100倍，与此同时它又很柔。石墨烯薄膜由于其出色的性能，具有十分广泛的应用前景，比如可用于制作各种电子设备。但在微纳米尺度下，电子器件中各组件的相互摩擦和粘附无法避免。而此类元件的表面积与体积之比很大，因此表面力成为可靠性设计时需考虑的主要载荷之一。本文的主要内容是使用变分原理得到了粘附段的刚度矩阵，结合多键合接触模型，引入粘附和摩擦对模型的影响。我们使用matlab软件编制模拟程序，并在对称RVE的粘附部分，使用此程序探究了石墨烯膜厚度与粘附长度的关系。最后，我们通过编写abaqus子程序vuinter来再次验证，但缺点在于abaqus的模型存在网格穿透的问题，目前还在解决中。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig1.PNG" alt="fig1"></p>
+<h4 id="2-多键合接触模型"><a href="#2-多键合接触模型" class="headerlink" title="2. 多键合接触模型"></a><strong>2.</strong> <strong>多键合接触模型</strong></h4><p>多键合接触模型：用弹簧来描述表面间的接触，弹簧的形成和断裂代表两个接触面之间的相互作用。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig2.PNG" alt="fig2"></p>
+<p>先介绍表面间的相互作用，图3模拟一个尖端与晶体表面的接触，即使尖端很小，也会与界面处形成多个接触[2]，接触的两个原子之间会形成相互作用力，当尖端远离表面时，相互作用力为拉力，阻止尖端运动，当尖端远离一定距离时，相互作用力消失。当靠近一定距离时，相互作用出现。这一过程与弹簧的形成与断开非常相似。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig3.PNG" alt="fig3"></p>
+<p>因此Filippov[3]多人提出一种键合理论的模型，如图4，通过弹簧连接两块刚性板，这些弹簧会自发断裂，然后在接触时重新形成。该模型中的动力学过程由两个相互竞争的过程控制：</p>
+<p>（1）弹簧的形成，形成一个倾向于抑制滑动的连接</p>
+<p>（2）弹簧的断裂，弹簧从其中一个板上分离，这一过程有助于滑动</p>
+<p>形成速率Kon与断开速率Koff由相应的能垒决定，由公式（1）和（2）决定。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig4.PNG" alt="fig4"></p>
+<p>通过使用这个模型，Filippov[3]成功模拟出微观摩擦中的粘滑机制，如图5a。之后Braun[4]使用了类似的地震模型研究了出现粘滑运动的条件,如图5b。多接触模型还可以通过改变形成和断裂的速率，引入温度、速度对相互作用的影响，比如Barel[5]使用了类似的多接触模型，研究了温度对纳米摩擦的影响，如图5c。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig5.PNG" alt="fig5"></p>
+<p>由于石墨烯膜之间的粘附是表面分子之间的相互作用，距离越远，相互作用越弱，反之，越强。因此采用多键合接触模型中多个键合的形成和断开来描述两个表面之间的相互作用。图6表示的是石墨烯膜材料的横截面结构示意图，我们对红色框里的RVE进行分析。图7是对称RVE的3D图，为了减少计算量，我们将对称RVE简化成二维图，如图8所示。</p>
+<img src="/img/薄膜黏附问题的有限元方法实现/fig6.PNG" alt="fig6" style="zoom:80%;">
+
+<img src="/img/薄膜黏附问题的有限元方法实现/fig7.PNG" alt="fig7" style="zoom:80%;">
+
+
+
+<p>我们在有限元所划分节点上布置接触位点，如图9所示，在每一个接触位点上，我们假设有若干数目的接触，这些接触有两种状态：结合态（on）与断开态（off），两个状态之间可以相互转化，转速率分别为Kon、Koff，由公式（3）和（4）表示。我们将每一个接触位点上的接触数目归一化处理为相互作用强度，即当整个接触位点上所有的接触都处于结合态时，此位点上的表面相互作用强度（S）为1；反之，若所有接触都断开，则位点上的S为0.具体位点上接触的强度S由形成速率Kon与断开速率Koff两者共同决定。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig8.PNG" alt="fig8"></p>
+<p>式中d为弹簧伸长长度，l0为特征长度，F为弹簧力，FB为特征弹簧力，Kon与Koff分别为接触形成与断开的特征速率。易知，在一段时间达到平衡后，表面相互作用强度值S如下所示,其取值范围为0-1：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig9.PNG" alt="fig9"></p>
+<img src="/img/薄膜黏附问题的有限元方法实现/fig10.PNG" alt="fig10" style="zoom:80%;">
+
+
+
+<h4 id="3-有限元方法"><a href="#3-有限元方法" class="headerlink" title="3. 有限元方法"></a><strong>3.</strong> <strong>有限元方法</strong></h4><p>这里对结构划分的是平面直梁单元。平面直梁是指变形前轴线为直线、载荷位于其主形心惯性平面能的承弯构件[6]。如图10所示的局部坐标系内的梁单元，其长度为1，弹性模量为E，惯性矩为I，有两个节点，此直梁单元有6个自由度(DOF),其中<img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig11.PNG" alt="fig11">分别为两个节点的位移和转角。利用函数插值、几何方程、物理方程以及势能计算公式，可以将单元的所有力学参量用节点位移列阵及相关的插值函数来表示。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig12.PNG" alt="fig12"></p>
+<p>对于整个接触界面，并不是所有节点都会受到粘附力，相距较远的界面，其相互作用可近似忽略。因此整个界面分成粘附段和非粘附段，非粘附段的刚度矩阵为二维直梁单元矩阵，在这里不进行描述。而粘附段中编号为i,j两个节点确定的单元，易知其总势能表达式：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig13.PNG" alt="fig13"></p>
+<p>式中q为节点位移矩阵，其表达式为公式（7），P为节点外力矩阵，其表达式为公式（8），ki为i节点上的弹簧弹性系数，ki = kS（k为弹簧系数，S为表面相互作用强度），x,y为节点坐标，u,v分别为对应方向的位移。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig14.PNG" alt="fig14"></p>
+<p>将公式中的势能对节点位移矩阵q取变分，易得：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig15.PNG" alt="fig15"></p>
+<p>式中K’和P’的具体形式分别为：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig16.PNG" alt="fig16"></p>
+<p>其中T为坐标变换矩阵，<img src="/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/Users/86183\Desktop\博客备份\薄膜黏附问题的有限元方法实现\fig18.PNG" alt="fig18">为局部坐标系下的二维直梁单元刚度矩阵，具体形式为</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig19.PNG" alt="fig19"></p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig20.PNG" alt="fig20"></p>
+<p>模拟所需的参数如下：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig21.PNG" alt="fig21"></p>
+<p>以上是在探究对称RVE单元的粘附作用，但在实际情况中，石墨烯薄膜大多不是对称的，如图11所示。而非对称的石墨烯薄膜层间会发生横向错动，导致层间摩擦，因此引入切向摩擦力是非常有必要的，切向摩擦力的公式如下：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig22.PNG" alt="fig22"></p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig23.PNG" alt="fig23"></p>
+<p>上图非对称模型的总势能表达式为：<img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig24.PNG" alt="fig24"></p>
+<p>式中q为节点位移矩阵，K为无修正的总体刚度矩阵，ki为i节点上的弹簧弹性系数，ki = KS（k为弹簧系数，S为表面相互作用强度），x,y为节点坐标，u,v分别为对应方向的位移。式中位移矢量第一个下标1表示上层表面，2表示位于下层表面；第二个下标为节点编号。为了区分上下结构的刚度矩阵元素，用k表示位于上层，K表示位于下层。</p>
+<p>将公式(15)中的势能对节点位移矩阵q取变分，得方程</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig25.PNG" alt="fig25"></p>
+<p>式中K’为考虑弹簧修正后的总体刚度矩阵。界面上i节点上的弹簧平衡方程为：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig26.PNG" alt="fig26"></p>
+<p>最后我们采用显示格式计算相对速度v，其表达式如下：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig27.PNG" alt="fig27"></p>
+<p>在有限元格式中，节点摩擦力可被看作集中载荷直接加到结构的总体方程中，经过调整，修正后的总体方程为：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig28.PNG" alt="fig28"></p>
+<p>其中：</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig29.PNG" alt="fig29"></p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig30.PNG" alt="fig30"></p>
+<p>根据以上公式，我们将单元刚度矩阵组集成整体刚度矩阵，并定义边界条件，代入材料参数。这里我们所求解的方法是使用matlab进行编程求解。</p>
+<p> 为了验证方法的可行性，在这里，我们测试了膜的厚度对粘附长度的影响。根据材料力学所学原理可知，厚度越厚，抗弯曲刚度越大，因此粘附段的长度就会减小。而厚度越小，结构抵抗变形的能力会降低，导致变形越大，增加了粘附长度。图12给出了粘附长度与厚度的关系。可以从图中看出，粘附长度随厚度的变化是非线性的，当厚度较大时，粘附长度不会发生变化，稳定在一个值内,而这个值接近于初始粘附长度。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig31.PNG" alt="fig31"></p>
+<p>由于matlab编制的程序有较大的局限性，不能适应较为复杂的界面，因此我们还编制了abaqus的子程序vuinter，得到了厚度与粘附长度的关系，但是在abaqus中网格穿透的问题严重，目前还在解决中。</p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig32.PNG" alt="fig32"></p>
+<p><img src="/img/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95%E5%AE%9E%E7%8E%B0/fig33.PNG" alt="fig33"></p>
+</h1></article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="mailto:undefined">Eren</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="https://eren-only.github.io/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/">https://eren-only.github.io/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="https://eren-only.github.io" target="_blank">Eren的博客</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"></div><div class="post_share"><div class="social-share" data-image="https://cn.bing.com/images/search?view=detailV2&amp;ccid=UmxpsJ%2bs&amp;id=641054463C62FA3EF12D02796AE0E562B8ACF807&amp;thid=OIP.UmxpsJ-sshjWrTYpYsLh1QHaGM&amp;mediaurl=https%3a%2f%2finews.gtimg.com%2fnewsapp_bt%2f0%2f13411727813%2f1000&amp;exph=796&amp;expw=951&amp;q=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;simid=608028504488936380&amp;FORM=IRPRST&amp;ck=476B865DF83FBCB91A9776DCB632F085&amp;selectedIndex=30&amp;qpvt=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;ajaxhist=0&amp;ajaxserp=0" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/social-share.js/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="next-post pull-full"><a href="/2022/03/01/%E8%A2%AB%E5%AD%90%E7%9A%84%E8%A4%B6%E7%9A%B1%E5%88%86%E6%9E%90/"><img class="next-cover" src="https://img.yipic.cn/thumb/403a4b3e/83314ad7/4460e54b/193445f2/big_403a4b3e83314ad74460e54b193445f2.jpg?x-oss-process=image/format,webp/sharpen,100" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">abaqus褶皱分析</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div id="lv-container" data-id="city" data-uid="MTAyMC81NTM4MS8zMTg0OA=="></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="/img/yao.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">Eren</div><div class="author-info__description">可以转但只能转一点点</div></div><div class="card-info-data is-center"><div class="card-info-data-item"><a href="/archives/"><div class="headline">文章</div><div class="length-num">6</div></a></div><div class="card-info-data-item"><a href="/tags/"><div class="headline">标签</div><div class="length-num">0</div></a></div><div class="card-info-data-item"><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/xxxxxx"><i class="fab fa-github"></i><span>Follow Me</span></a></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn card-announcement-animation"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link"><span class="toc-number">1.</span> <span class="toc-text"> 薄膜黏附问题的有限元方法
+
+
+
+
+上学期博主上了一门弹性力学变分课，变分的思想是泛函求极值，泛函是函数的函数。在运用中，可以把能量看作是一种泛函，能量（势能加外力功）是应力应变的函数，而应力应变又是位移和位移导数的函数，通过对能量求极值，得到数值解。而有限元方法正是通过这样的思想，求解模型。这次，博主使用有限元方法对薄膜的粘附问题进行求解，编程软件为matlab。
+1. 背景和主要内容在许多领域中，粘附和摩擦是一个非常普遍的现象，从微观到宏观，从生物到机器。因此粘附和摩擦具有很高的研究价值。近年来， 随着微纳米材料的发展与纳米尺度力学现象的深入研究，小尺度下的粘附和摩擦开始进入人们的视野。在众多的微纳米材料中，石墨烯材料是碳原子以六边形蜂巢晶格结构排列形成的平面薄膜，如图1所示，它的断裂强度比最好的钢材还要高100倍，与此同时它又很柔。石墨烯薄膜由于其出色的性能，具有十分广泛的应用前景，比如可用于制作各种电子设备。但在微纳米尺度下，电子器件中各组件的相互摩擦和粘附无法避免。而此类元件的表面积与体积之比很大，因此表面力成为可靠性设计时需考虑的主要载荷之一。本文的主要内容是使用变分原理得到了粘附段的刚度矩阵，结合多键合接触模型，引入粘附和摩擦对模型的影响。我们使用matlab软件编制模拟程序，并在对称RVE的粘附部分，使用此程序探究了石墨烯膜厚度与粘附长度的关系。最后，我们通过编写abaqus子程序vuinter来再次验证，但缺点在于abaqus的模型存在网格穿透的问题，目前还在解决中。
+
+2. 多键合接触模型多键合接触模型：用弹簧来描述表面间的接触，弹簧的形成和断裂代表两个接触面之间的相互作用。
+
+先介绍表面间的相互作用，图3模拟一个尖端与晶体表面的接触，即使尖端很小，也会与界面处形成多个接触[2]，接触的两个原子之间会形成相互作用力，当尖端远离表面时，相互作用力为拉力，阻止尖端运动，当尖端远离一定距离时，相互作用力消失。当靠近一定距离时，相互作用出现。这一过程与弹簧的形成与断开非常相似。
+
+因此Filippov[3]多人提出一种键合理论的模型，如图4，通过弹簧连接两块刚性板，这些弹簧会自发断裂，然后在接触时重新形成。该模型中的动力学过程由两个相互竞争的过程控制：
+（1）弹簧的形成，形成一个倾向于抑制滑动的连接
+（2）弹簧的断裂，弹簧从其中一个板上分离，这一过程有助于滑动
+形成速率Kon与断开速率Koff由相应的能垒决定，由公式（1）和（2）决定。
+
+通过使用这个模型，Filippov[3]成功模拟出微观摩擦中的粘滑机制，如图5a。之后Braun[4]使用了类似的地震模型研究了出现粘滑运动的条件,如图5b。多接触模型还可以通过改变形成和断裂的速率，引入温度、速度对相互作用的影响，比如Barel[5]使用了类似的多接触模型，研究了温度对纳米摩擦的影响，如图5c。
+
+由于石墨烯膜之间的粘附是表面分子之间的相互作用，距离越远，相互作用越弱，反之，越强。因此采用多键合接触模型中多个键合的形成和断开来描述两个表面之间的相互作用。图6表示的是石墨烯膜材料的横截面结构示意图，我们对红色框里的RVE进行分析。图7是对称RVE的3D图，为了减少计算量，我们将对称RVE简化成二维图，如图8所示。
+
+
+
+
+
+
+我们在有限元所划分节点上布置接触位点，如图9所示，在每一个接触位点上，我们假设有若干数目的接触，这些接触有两种状态：结合态（on）与断开态（off），两个状态之间可以相互转化，转速率分别为Kon、Koff，由公式（3）和（4）表示。我们将每一个接触位点上的接触数目归一化处理为相互作用强度，即当整个接触位点上所有的接触都处于结合态时，此位点上的表面相互作用强度（S）为1；反之，若所有接触都断开，则位点上的S为0.具体位点上接触的强度S由形成速率Kon与断开速率Koff两者共同决定。
+
+式中d为弹簧伸长长度，l0为特征长度，F为弹簧力，FB为特征弹簧力，Kon与Koff分别为接触形成与断开的特征速率。易知，在一段时间达到平衡后，表面相互作用强度值S如下所示,其取值范围为0-1：
+
+
+
+
+
+3. 有限元方法这里对结构划分的是平面直梁单元。平面直梁是指变形前轴线为直线、载荷位于其主形心惯性平面能的承弯构件[6]。如图10所示的局部坐标系内的梁单元，其长度为1，弹性模量为E，惯性矩为I，有两个节点，此直梁单元有6个自由度(DOF),其中分别为两个节点的位移和转角。利用函数插值、几何方程、物理方程以及势能计算公式，可以将单元的所有力学参量用节点位移列阵及相关的插值函数来表示。
+
+对于整个接触界面，并不是所有节点都会受到粘附力，相距较远的界面，其相互作用可近似忽略。因此整个界面分成粘附段和非粘附段，非粘附段的刚度矩阵为二维直梁单元矩阵，在这里不进行描述。而粘附段中编号为i,j两个节点确定的单元，易知其总势能表达式：
+
+式中q为节点位移矩阵，其表达式为公式（7），P为节点外力矩阵，其表达式为公式（8），ki为i节点上的弹簧弹性系数，ki &#x3D; kS（k为弹簧系数，S为表面相互作用强度），x,y为节点坐标，u,v分别为对应方向的位移。
+
+将公式中的势能对节点位移矩阵q取变分，易得：
+
+式中K’和P’的具体形式分别为：
+
+其中T为坐标变换矩阵，为局部坐标系下的二维直梁单元刚度矩阵，具体形式为
+
+
+模拟所需的参数如下：
+
+以上是在探究对称RVE单元的粘附作用，但在实际情况中，石墨烯薄膜大多不是对称的，如图11所示。而非对称的石墨烯薄膜层间会发生横向错动，导致层间摩擦，因此引入切向摩擦力是非常有必要的，切向摩擦力的公式如下：
+
+
+上图非对称模型的总势能表达式为：
+式中q为节点位移矩阵，K为无修正的总体刚度矩阵，ki为i节点上的弹簧弹性系数，ki &#x3D; KS（k为弹簧系数，S为表面相互作用强度），x,y为节点坐标，u,v分别为对应方向的位移。式中位移矢量第一个下标1表示上层表面，2表示位于下层表面；第二个下标为节点编号。为了区分上下结构的刚度矩阵元素，用k表示位于上层，K表示位于下层。
+将公式(15)中的势能对节点位移矩阵q取变分，得方程
+
+式中K’为考虑弹簧修正后的总体刚度矩阵。界面上i节点上的弹簧平衡方程为：
+
+最后我们采用显示格式计算相对速度v，其表达式如下：
+
+在有限元格式中，节点摩擦力可被看作集中载荷直接加到结构的总体方程中，经过调整，修正后的总体方程为：
+
+其中：
+
+
+根据以上公式，我们将单元刚度矩阵组集成整体刚度矩阵，并定义边界条件，代入材料参数。这里我们所求解的方法是使用matlab进行编程求解。
+ 为了验证方法的可行性，在这里，我们测试了膜的厚度对粘附长度的影响。根据材料力学所学原理可知，厚度越厚，抗弯曲刚度越大，因此粘附段的长度就会减小。而厚度越小，结构抵抗变形的能力会降低，导致变形越大，增加了粘附长度。图12给出了粘附长度与厚度的关系。可以从图中看出，粘附长度随厚度的变化是非线性的，当厚度较大时，粘附长度不会发生变化，稳定在一个值内,而这个值接近于初始粘附长度。
+
+由于matlab编制的程序有较大的局限性，不能适应较为复杂的界面，因此我们还编制了abaqus的子程序vuinter，得到了厚度与粘附长度的关系，但是在abaqus中网格穿透的问题严重，目前还在解决中。
+
+
+</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#1-%E8%83%8C%E6%99%AF%E5%92%8C%E4%B8%BB%E8%A6%81%E5%86%85%E5%AE%B9"><span class="toc-number">1.0.0.1.</span> <span class="toc-text">1. 背景和主要内容</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#2-%E5%A4%9A%E9%94%AE%E5%90%88%E6%8E%A5%E8%A7%A6%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.0.0.2.</span> <span class="toc-text">2. 多键合接触模型</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#3-%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95"><span class="toc-number">1.0.0.3.</span> <span class="toc-text">3. 有限元方法</span></a></li></ol></li></ol></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/" title="薄膜黏附问题的有限元方法"><img src="https://cn.bing.com/images/search?view=detailV2&amp;ccid=UmxpsJ%2bs&amp;id=641054463C62FA3EF12D02796AE0E562B8ACF807&amp;thid=OIP.UmxpsJ-sshjWrTYpYsLh1QHaGM&amp;mediaurl=https%3a%2f%2finews.gtimg.com%2fnewsapp_bt%2f0%2f13411727813%2f1000&amp;exph=796&amp;expw=951&amp;q=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;simid=608028504488936380&amp;FORM=IRPRST&amp;ck=476B865DF83FBCB91A9776DCB632F085&amp;selectedIndex=30&amp;qpvt=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;ajaxhist=0&amp;ajaxserp=0" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="薄膜黏附问题的有限元方法"/></a><div class="content"><a class="title" href="/2022/03/09/%E8%96%84%E8%86%9C%E9%BB%8F%E9%99%84%E9%97%AE%E9%A2%98%E7%9A%84%E6%9C%89%E9%99%90%E5%85%83%E6%96%B9%E6%B3%95/" title="薄膜黏附问题的有限元方法">薄膜黏附问题的有限元方法</a><time datetime="2022-03-08T16:00:00.000Z" title="发表于 2022-03-09 00:00:00">2022-03-09</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/03/01/%E8%A2%AB%E5%AD%90%E7%9A%84%E8%A4%B6%E7%9A%B1%E5%88%86%E6%9E%90/" title="abaqus褶皱分析"><img src="https://img.yipic.cn/thumb/403a4b3e/83314ad7/4460e54b/193445f2/big_403a4b3e83314ad74460e54b193445f2.jpg?x-oss-process=image/format,webp/sharpen,100" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="abaqus褶皱分析"/></a><div class="content"><a class="title" href="/2022/03/01/%E8%A2%AB%E5%AD%90%E7%9A%84%E8%A4%B6%E7%9A%B1%E5%88%86%E6%9E%90/" title="abaqus褶皱分析">abaqus褶皱分析</a><time datetime="2022-02-28T16:00:00.000Z" title="发表于 2022-03-01 00:00:00">2022-03-01</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/02/19/ABAQUS%E5%AD%90%E7%A8%8B%E5%BA%8Fvuinter(2)/" title="ABAQUS子程序-vuinter(2)"><img src="http://feaassist.uk/wp-content/uploads/2020/07/Methods-44-1024x940.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ABAQUS子程序-vuinter(2)"/></a><div class="content"><a class="title" href="/2022/02/19/ABAQUS%E5%AD%90%E7%A8%8B%E5%BA%8Fvuinter(2)/" title="ABAQUS子程序-vuinter(2)">ABAQUS子程序-vuinter(2)</a><time datetime="2022-02-18T16:00:00.000Z" title="发表于 2022-02-19 00:00:00">2022-02-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/02/19/%E9%A1%B9%E7%9B%AE%E5%92%8C%E8%AF%BE%E9%A2%98/" title="项目和课题"><img src="https://gss0.baidu.com/-4o3dSag_xI4khGko9WTAnF6hhy/zhidao/pic/item/f9198618367adab486a46fcb8ad4b31c8601e4c6.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="项目和课题"/></a><div class="content"><a class="title" href="/2022/02/19/%E9%A1%B9%E7%9B%AE%E5%92%8C%E8%AF%BE%E9%A2%98/" title="项目和课题">项目和课题</a><time datetime="2022-02-18T16:00:00.000Z" title="发表于 2022-02-19 00:00:00">2022-02-19</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/2022/01/27/vuinter(1)/" title="ABAQUS子程序-vuinter(1)"><img src="http://feaassist.uk/wp-content/uploads/2020/07/Methods-44-1024x940.png" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="ABAQUS子程序-vuinter(1)"/></a><div class="content"><a class="title" href="/2022/01/27/vuinter(1)/" title="ABAQUS子程序-vuinter(1)">ABAQUS子程序-vuinter(1)</a><time datetime="2022-01-27T07:19:57.000Z" title="发表于 2022-01-27 15:19:57">2022-01-27</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url('https://cn.bing.com/images/search?view=detailV2&amp;ccid=UmxpsJ%2bs&amp;id=641054463C62FA3EF12D02796AE0E562B8ACF807&amp;thid=OIP.UmxpsJ-sshjWrTYpYsLh1QHaGM&amp;mediaurl=https%3a%2f%2finews.gtimg.com%2fnewsapp_bt%2f0%2f13411727813%2f1000&amp;exph=796&amp;expw=951&amp;q=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;simid=608028504488936380&amp;FORM=IRPRST&amp;ck=476B865DF83FBCB91A9776DCB632F085&amp;selectedIndex=30&amp;qpvt=%e8%96%84%e8%86%9c%e9%bb%8f%e9%99%84&amp;ajaxhist=0&amp;ajaxserp=0')"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By Eren</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="chat_btn" type="button" title="rightside.chat_btn"><i class="fas fa-sms"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><script>var preloader = {
+  endLoading: () => {
+    document.body.style.overflow = 'auto';
+    document.getElementById('loading-box').classList.add("loaded")
+  },
+  initLoading: () => {
+    document.body.style.overflow = '';
+    document.getElementById('loading-box').classList.remove("loaded")
+
+  }
+}
+window.addEventListener('load',preloader.endLoading())</script><div class="js-pjax"><script>function loadLivere () {
+  if (typeof LivereTower === 'object') {
+    window.LivereTower.init()
+  }
+  else {
+    (function(d, s) {
+        var j, e = d.getElementsByTagName(s)[0];
+        if (typeof LivereTower === 'function') { return; }
+        j = d.createElement(s);
+        j.src = 'https://cdn-city.livere.com/js/embed.dist.js';
+        j.async = true;
+        e.parentNode.insertBefore(j, e);
+    })(document, 'script');
+  }
+}
+
+if ('Livere' === 'Livere' || !false) {
+  if (false) btf.loadComment(document.getElementById('lv-container'), loadLivere)
+  else loadLivere()
+}
+else {
+  function loadOtherComment () {
+    loadLivere()
+  }
+}</script></div><script id="click-heart" src="https://cdn.jsdelivr.net/npm/butterfly-extsrc@1/dist/click-heart.min.js" async="async" mobile="false"></script><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
